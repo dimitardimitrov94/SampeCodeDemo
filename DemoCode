@@ -1,0 +1,119 @@
+import React from 'react';
+import { StyleSheet, Text, View, ListView, FlatList, Button, TextInput } from 'react-native';
+import Constants from 'expo-constants';
+import jsonData from './Data/field-info.json'
+import MapView from 'react-native-maps'
+
+
+
+export default function App() {
+
+  return (
+    <View style={styles.container}>
+      
+      <FlatList
+        data={getDataFromJson()}
+        numColumns={2}
+        renderItem={({ item }) =>
+          <View style={styles.itemContainer}>
+            <Text style={styles.label}>
+              {item.title}
+            </Text>
+            <Text style={styles.label2}>
+              {item.key}
+            </Text>
+          </View>}
+      />
+    </View>
+  );
+}
+
+	
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: Constants.statusBarHeight + 10,
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+
+    justifyContent: 'center',
+    color: '#fff',
+  },
+  itemContainer: {
+    marginBottom: 20,
+    marginLeft: 5,
+    flex: 1, flexDirection: 'column',
+  },
+
+  label: {
+    color: '#808080',
+  },
+  label2: {
+    color: '#000000',
+  },
+
+});
+
+function getDataFromJson() {
+  var listData = [];
+  var sensors = jsonData.sensors[0];
+  var desccriptionData = jsonData.description;
+
+  Object.keys(desccriptionData).forEach(element => {
+
+    if (element == 'acreage' || element == 'soilCategory' || element == 'regionTag')  {
+
+      var item = { title: '', key: '' };
+      item.key = desccriptionData[element].toString();
+      item.title = parseName(element.toString());
+     if(item )
+      listData.push(item)
+    }
+  });
+
+  Object.keys(sensors).forEach(element => {
+
+    if (element != 'deviceId') {
+
+      var item = { title: '', key: '' };
+
+      item.title = parseName(element.toString());
+      item.key = sensors[element].toString();
+      if(item.title != "unUsed") {
+      if (item.title == "Влажност на въздуха") {
+        item.key += "%";
+      }
+      else if ((item.title == "Почвена температура") || (item.title == "Темп.възудх")) {
+        item.key += "°C";
+      }
+      else if (item.title == "Заряд батерия" ) {
+        item.key += " V";
+      }
+      else if((item.title == "Порив на вятъра") || item.title =="Скорост на вятъра") {
+        item.key += " m/s"
+      }
+      
+
+
+      listData.push(item)
+    }
+  }});
+
+  return listData;
+}
+
+function parseName(name) {
+  switch (name) {
+    case 'voltage': return 'Заряд батерия';
+    case 'soilTemperature': return 'Почвена температура';
+    case 'windDirection': return 'Посока на вятъра';
+    case 'maxWindSpeed': return 'Порив на вятъра';
+    case 'airTemperature': return 'Темп.възудх';
+    case 'acreage': return 'Площ[m²]';
+    case 'soilCategory': return 'Тип почва';
+    case 'airHumidity': return "Влажност на въздуха";
+    case 'regionTag': return 'Регион';
+    case 'meanWindSpeed': return "Скорост на вятъра";
+    case 'soilMoisture': return "Почвена влага";
+     default: return 'unUsed';
+  };
+}
