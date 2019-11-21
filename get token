@@ -1,0 +1,15 @@
+componentDidMount() {
+    console.log("token");
+    AsyncStorage.getItem("token", (err, result) => {
+      if (result) {
+        this.setState({
+          token: result
+        });
+        console.log(this.state.token)
+      } else {
+        this.setState({
+          error: true
+        });
+      }
+    });
+  }
